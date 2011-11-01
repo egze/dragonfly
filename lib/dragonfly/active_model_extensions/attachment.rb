@@ -54,6 +54,7 @@ module Dragonfly
           self.class.run_callbacks(:after_assign, model, self) if should_run_callbacks?
           retain! if should_retain?
         end
+        model_uid_will_change!
         value
       end
 
@@ -210,6 +211,11 @@ module Dragonfly
         model.send("#{attribute}_uid")
       end
 
+      def model_uid_will_change!
+        meth = "#{attribute}_uid_will_change!"
+        model.send(meth) if model.respond_to?(meth)
+      end
+      
       attr_reader :model, :uid
       attr_writer :job
       attr_accessor :previous_uid

@@ -1,8 +1,42 @@
-HEAD
+0.9.8 (2011-09-08)
+==================
+Fixes
+-----
+- Regenerated gemspec again with ruby 1.8.7 - didn't seem to be fixed
+
+0.9.7 (2011-09-08)
+==================
+Fixes
+-----
+- Regenerated gemspec to overcome annoying yaml issue (http://blog.rubygems.org/2011/08/31/shaving-the-yaml-yacc.html)
+
+0.9.6 (2011-09-06)
+==================
+Features
+--------
+- Allow setting `content_type` when storing in Mongo GridFS
+
+Changes
+-------
+- Tests use Rails 3.1
+
+Fixes
+-----
+- Moved from fog's deprecated `get_object_url` to `get_object_https_url`
+- Allow initializing a TempObject with Rack::Test::UploadedFile
+- Tests working in Windows (except feature that uses FileCommandAnalyser)
+- Better shell quoting
+
+0.9.5 (2011-07-27)
 ==================
 Features
 --------
 - Added reflection method `app.analyser_methods`
+
+Fixes
+-----
+- Fixed `convert` and `identify` for files with spaces
+- Fixed size validations for Rails 3.0.7
 
 0.9.4 (2011-06-10)
 ==================

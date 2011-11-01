@@ -20,7 +20,7 @@ def todo
 end
 
 require 'logger'
-LOG_FILE = File.dirname(__FILE__) + '/spec.log' unless defined?(LOG_FILE)
+LOG_FILE = 'tmp/test.log' unless defined?(LOG_FILE)
 FileUtils.rm_rf(LOG_FILE)
 def mock_app(extra_stubs={})
   mock('app', {
@@ -37,13 +37,16 @@ def mock_app(extra_stubs={})
 end
 
 def test_app
-  Dragonfly::App.send(:new)
+  app = Dragonfly::App.send(:new)
+  app.log = Logger.new(LOG_FILE)
+  app.datastore.root_path = 'tmp/file_data_store_test'
+  app
 end
 
 def suppressing_stderr
   original_stderr = $stderr.dup
   tempfile = Tempfile.new('stderr')
-  $stderr.reopen(tempfile)
+  $stderr.reopen(tempfile) rescue
   yield
 ensure
   tempfile.close!

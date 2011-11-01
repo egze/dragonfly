@@ -15,14 +15,14 @@ describe Dragonfly::TempObject do
     tempfile
   end
 
-  def new_file(data='HELLO', path="/tmp/test_file")
+  def new_file(data='HELLO', path="tmp/test_file")
     File.open(path, 'w') do |f|
       f.write(data)
     end
     File.new(path)
   end
 
-  def new_pathname(data='HELLO', path="/tmp/test_file")
+  def new_pathname(data='HELLO', path="tmp/test_file")
     File.open(path, 'w') do |f|
       f.write(data)
     end
@@ -104,7 +104,11 @@ describe Dragonfly::TempObject do
 
       describe "path" do
         it "should return an absolute file path" do
-          @temp_object.path.should =~ %r{^/\w+}
+          if Dragonfly.running_on_windows?
+            @temp_object.path.should =~ %r{^[a-zA-Z]:/\w+}
+          else
+            @temp_object.path.should =~ %r{^/\w+}
+          end
         end
       end
 
@@ -116,11 +120,11 @@ describe Dragonfly::TempObject do
 
       describe "to_file" do
         before(:each) do
-          @filename = 'eggnog.txt'
-          FileUtils.rm(@filename) if File.exists?(@filename)
+          @filename = 'tmp/eggnog.txt'
+          FileUtils.rm_f(@filename) if File.exists?(@filename)
         end
         after(:each) do
-          FileUtils.rm(@filename) if File.exists?(@filename)
+          FileUtils.rm_f(@filename) if File.exists?(@filename)
         end
         it "should write to a file" do
           @temp_object.to_file(@filename)
@@ -151,16 +155,6 @@ describe Dragonfly::TempObject do
           part.bytesize.should == 8192
         end
         parts.last.bytesize.should <= 8192
-      end
-      it "should yield the number of bytes specified in the class configuration" do
-        klass = Class.new(Dragonfly::TempObject)
-        temp_object = new_temp_object(File.read(sample_path('round.gif')), klass)
-        klass.block_size = 3001
-        parts = get_parts(temp_object)
-        parts[0...-1].each do |part|
-          part.length.should == 3001
-        end
-        parts.last.length.should <= 3001
       end
     end
     
@@ -246,13 +240,17 @@ describe Dragonfly::TempObject do
     it "should return the file's path" do
       file = new_file('HELLO')
       temp_object = Dragonfly::TempObject.new(file)
-      temp_object.path.should == file.path
+      temp_object.path.should == File.expand_path(file.path)
     end
     
     it "should return an absolute path even if the file wasn't instantiated like that" do
-      file = new_file('HELLO', 'testfile')
+      file = new_file('HELLO', 'tmp/bongo')
       temp_object = Dragonfly::TempObject.new(file)
-      temp_object.path.should =~ %r{^/\w.*testfile}
+      if Dragonfly.running_on_windows?
+        temp_object.path.should =~ %r{^[a-zA-Z]:/\w.*bongo}
+      else
+        temp_object.path.should =~ %r{^/\w.*bongo}
+      end
       file.close
       FileUtils.rm(file.path)
     end
@@ -275,13 +273,17 @@ describe Dragonfly::TempObject do
     it "should return the file's path" do
       pathname = new_pathname('HELLO')
       temp_object = Dragonfly::TempObject.new(pathname)
-      temp_object.path.should == pathname.to_s
+      temp_object.path.should == File.expand_path(pathname.to_s)
     end
     
     it "should return an absolute path even if the pathname is relative" do
-      pathname = new_pathname('HELLO', 'testfile')
+      pathname = new_pathname('HELLO', 'tmp/bingo')
       temp_object = Dragonfly::TempObject.new(pathname)
-      temp_object.path.should =~ %r{^/\w.*testfile}
+      if Dragonfly.running_on_windows?
+        temp_object.path.should =~ %r{^[a-zA-Z]:/\w.*bingo}
+      else
+        temp_object.path.should =~ %r{^/\w.*bingo}
+      end
       pathname.delete
     end
   end
@@ -308,6 +310,26 @@ describe Dragonfly::TempObject do
     it "should have the same file path" do
       @temp_object1.path.should == @temp_object2.path
     end
+  end
+
+  describe "initialize from a Rack::Test::UploadedFile" do
+    def initialization_object(data)
+      # The criteria we're using to determine if an object is a
+      # Rack::Test::UploadedFile is if it responds to path
+      #
+      # We can't just check if it is_a?(Rack::Test::UploadedFile) because that
+      # class may not always be present.
+      uploaded_file = mock("mock_uploadedfile")
+      uploaded_file.stub!(:path).and_return File.expand_path('tmp/test_file')
+      uploaded_file.stub!(:original_filename).and_return('foo.jpg')
+
+      # Create a real file with the contents required at the correct path
+      new_file(data, 'tmp/test_file')
+
+      uploaded_file
+    end
+
+    it_should_behave_like "common behaviour"
   end
 
   describe "original_filename" do

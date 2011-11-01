@@ -35,6 +35,8 @@ module Dragonfly
         
         meta = opts[:meta] || {}
         headers = opts[:headers] || {}
+        mime_type = opts[:mime_type] || opts[:content_type]
+        headers['Content-Type'] = mime_type if mime_type
         uid = opts[:path] || generate_uid(meta[:name] || temp_object.original_filename || 'file')
         
         rescuing_socket_errors do
@@ -69,7 +71,11 @@ module Dragonfly
 
       def url_for(uid, opts={})
         if opts && opts[:expires]
-          storage.get_object_url(bucket_name, uid, opts[:expires])
+          if storage.respond_to?(:get_object_https_url) # fog's get_object_url is deprecated (aug 2011)
+            storage.get_object_https_url(bucket_name, uid, opts[:expires])
+          else
+            storage.get_object_url(bucket_name, uid, opts[:expires])
+          end
         else
           "http://#{bucket_name}.s3.amazonaws.com/#{uid}"
         end

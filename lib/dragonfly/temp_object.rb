@@ -35,14 +35,6 @@ module Dragonfly
     # Exceptions
     class Closed < RuntimeError; end
 
-    # Class configuration
-    class << self
-
-      include Configurable
-      configurable_attr :block_size, 8192
-
-    end
-
     # Instance Methods
 
     def initialize(obj)
@@ -56,17 +48,24 @@ module Dragonfly
         @tempfile = obj
       elsif obj.is_a? File
         @pathname = Pathname.new(obj.path)
-        @original_filename = @pathname.basename.to_s
       elsif obj.is_a? Pathname
         @pathname = obj
-        @original_filename = @pathname.basename.to_s
       elsif obj.respond_to?(:tempfile)
         @tempfile = obj.tempfile
+      elsif obj.respond_to?(:path) # e.g. Rack::Test::UploadedFile
+        @pathname = Pathname.new(obj.path)
       else
-        raise ArgumentError, "#{self.class.name} must be initialized with a String, a Pathname, a File, a Tempfile, another TempObject, or something that responds to .tempfile"
+        raise ArgumentError, "#{self.class.name} must be initialized with a String, a Pathname, a File, a Tempfile, another TempObject, something that responds to .tempfile, or something that responds to .path"
       end
+      
       @tempfile.close if @tempfile
-      @original_filename = obj.original_filename if obj.respond_to?(:original_filename)
+
+      # Original filename
+      @original_filename = if obj.respond_to?(:original_filename)
+        obj.original_filename
+      elsif @pathname
+        @pathname.basename.to_s
+      end
     end
     
     attr_reader :original_filename
@@ -94,7 +93,7 @@ module Dragonfly
       tempfile.binmode
       if block_given?
         ret = yield f
-        tempfile.close
+        tempfile.close unless tempfile.closed?
       else
         ret = f
       end
@@ -170,7 +169,7 @@ module Dragonfly
     private
 
     def block_size
-      self.class.block_size
+      8192
     end
 
     def copy_to_tempfile(path)

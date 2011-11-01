@@ -20,10 +20,11 @@ module Dragonfly
       CROP_GEOMETRY           = /^(\d+)x(\d+)([+-]\d+)?([+-]\d+)?(\w{1,2})?$/ # e.g. '30x30+10+10'
       THUMB_GEOMETRY = Regexp.union RESIZE_GEOMETRY, CROPPED_RESIZE_GEOMETRY, CROP_GEOMETRY
       
+      include Configurable
       include Utils
       
       def resize(temp_object, geometry)
-        convert(temp_object, "-resize \"#{geometry}\"")
+        convert(temp_object, "-resize #{geometry}")
       end
       
       def crop(temp_object, opts={})
@@ -70,7 +71,7 @@ module Dragonfly
      end
       
       def rotate(temp_object, amount, opts={})
-        convert(temp_object, "-rotate \"#{amount}#{opts[:qualifier]}\"")
+        convert(temp_object, "-rotate #{amount}#{opts[:qualifier]}")
       end
 
       def strip(temp_object)
