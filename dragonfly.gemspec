@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{dragonfly}
-  s.version = "0.9.4"
+  s.version = "0.9.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Mark Evans"]
-  s.date = %q{2011-06-10}
+  s.authors = [%q{Mark Evans}]
+  s.date = %q{2011-09-08}
   s.description = %q{Dragonfly is a framework that enables on-the-fly processing for any content type.
   It is especially suited to image handling. Its uses range from image thumbnails to standard attachments to on-demand text generation.}
   s.email = %q{mark@new-bamboo.co.uk}
@@ -123,6 +123,7 @@ Gem::Specification.new do |s|
     "lib/dragonfly/routed_endpoint.rb",
     "lib/dragonfly/serializer.rb",
     "lib/dragonfly/server.rb",
+    "lib/dragonfly/shell.rb",
     "lib/dragonfly/simple_cache.rb",
     "lib/dragonfly/temp_object.rb",
     "lib/dragonfly/url_mapper.rb",
@@ -131,6 +132,7 @@ Gem::Specification.new do |s|
     "samples/round.gif",
     "samples/sample.docx",
     "samples/taj.jpg",
+    "samples/white pixel.png",
     "spec/dragonfly/active_model_extensions/model_spec.rb",
     "spec/dragonfly/active_model_extensions/spec_helper.rb",
     "spec/dragonfly/analyser_spec.rb",
@@ -153,7 +155,6 @@ Gem::Specification.new do |s|
     "spec/dragonfly/image_magick/encoder_spec.rb",
     "spec/dragonfly/image_magick/generator_spec.rb",
     "spec/dragonfly/image_magick/processor_spec.rb",
-    "spec/dragonfly/image_magick/utils_spec.rb",
     "spec/dragonfly/job_builder_spec.rb",
     "spec/dragonfly/job_definitions_spec.rb",
     "spec/dragonfly/job_endpoint_spec.rb",
@@ -163,6 +164,7 @@ Gem::Specification.new do |s|
     "spec/dragonfly/routed_endpoint_spec.rb",
     "spec/dragonfly/serializer_spec.rb",
     "spec/dragonfly/server_spec.rb",
+    "spec/dragonfly/shell_spec.rb",
     "spec/dragonfly/simple_cache_spec.rb",
     "spec/dragonfly/temp_object_spec.rb",
     "spec/dragonfly/url_mapper_spec.rb",
@@ -170,12 +172,14 @@ Gem::Specification.new do |s|
     "spec/functional/image_magick_app_spec.rb",
     "spec/functional/model_urls_spec.rb",
     "spec/functional/remote_on_the_fly_spec.rb",
+    "spec/functional/shell_commands_spec.rb",
     "spec/functional/to_response_spec.rb",
     "spec/spec_helper.rb",
     "spec/support/argument_matchers.rb",
     "spec/support/image_matchers.rb",
     "spec/support/simple_matchers.rb",
     "spec/test_imagemagick.ru",
+    "tmp/.gitignore",
     "yard/handlers/configurable_attr_handler.rb",
     "yard/setup.rb",
     "yard/templates/default/fulldoc/html/css/common.css",
@@ -184,9 +188,9 @@ Gem::Specification.new do |s|
     "yard/templates/default/module/setup.rb"
   ]
   s.homepage = %q{http://github.com/markevans/dragonfly}
-  s.licenses = ["MIT"]
-  s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.5.2}
+  s.licenses = [%q{MIT}]
+  s.require_paths = [%q{lib}]
+  s.rubygems_version = %q{1.8.6}
   s.summary = %q{Ideal gem for handling attachments in Rails, Sinatra and Rack applications.}
   s.test_files = [
     "spec/dragonfly/active_model_extensions/model_spec.rb",
@@ -211,7 +215,6 @@ Gem::Specification.new do |s|
     "spec/dragonfly/image_magick/encoder_spec.rb",
     "spec/dragonfly/image_magick/generator_spec.rb",
     "spec/dragonfly/image_magick/processor_spec.rb",
-    "spec/dragonfly/image_magick/utils_spec.rb",
     "spec/dragonfly/job_builder_spec.rb",
     "spec/dragonfly/job_definitions_spec.rb",
     "spec/dragonfly/job_endpoint_spec.rb",
@@ -221,6 +224,7 @@ Gem::Specification.new do |s|
     "spec/dragonfly/routed_endpoint_spec.rb",
     "spec/dragonfly/serializer_spec.rb",
     "spec/dragonfly/server_spec.rb",
+    "spec/dragonfly/shell_spec.rb",
     "spec/dragonfly/simple_cache_spec.rb",
     "spec/dragonfly/temp_object_spec.rb",
     "spec/dragonfly/url_mapper_spec.rb",
@@ -228,6 +232,7 @@ Gem::Specification.new do |s|
     "spec/functional/image_magick_app_spec.rb",
     "spec/functional/model_urls_spec.rb",
     "spec/functional/remote_on_the_fly_spec.rb",
+    "spec/functional/shell_commands_spec.rb",
     "spec/functional/to_response_spec.rb",
     "spec/spec_helper.rb",
     "spec/support/argument_matchers.rb",
@@ -242,15 +247,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<rack>, [">= 0"])
       s.add_development_dependency(%q<capybara>, [">= 0"])
       s.add_development_dependency(%q<cucumber>, ["~> 0.10.0"])
-      s.add_development_dependency(%q<cucumber-rails>, ["~> 0.3.2"])
+      s.add_development_dependency(%q<cucumber-rails>, ["~> 0.5.2"])
       s.add_development_dependency(%q<database_cleaner>, [">= 0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_development_dependency(%q<fog>, [">= 0"])
       s.add_development_dependency(%q<mongo>, [">= 0"])
       s.add_development_dependency(%q<couchrest>, ["~> 1.0"])
       s.add_development_dependency(%q<rack-cache>, [">= 0"])
-      s.add_development_dependency(%q<rails>, ["= 3.0.5"])
-      s.add_development_dependency(%q<rake>, [">= 0"])
+      s.add_development_dependency(%q<rails>, ["~> 3.1.0"])
       s.add_development_dependency(%q<rspec>, ["~> 2.5"])
       s.add_development_dependency(%q<webmock>, [">= 0"])
       s.add_development_dependency(%q<yard>, [">= 0"])
@@ -261,15 +265,14 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rack>, [">= 0"])
       s.add_dependency(%q<capybara>, [">= 0"])
       s.add_dependency(%q<cucumber>, ["~> 0.10.0"])
-      s.add_dependency(%q<cucumber-rails>, ["~> 0.3.2"])
+      s.add_dependency(%q<cucumber-rails>, ["~> 0.5.2"])
       s.add_dependency(%q<database_cleaner>, [">= 0"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_dependency(%q<fog>, [">= 0"])
       s.add_dependency(%q<mongo>, [">= 0"])
       s.add_dependency(%q<couchrest>, ["~> 1.0"])
       s.add_dependency(%q<rack-cache>, [">= 0"])
-      s.add_dependency(%q<rails>, ["= 3.0.5"])
-      s.add_dependency(%q<rake>, [">= 0"])
+      s.add_dependency(%q<rails>, ["~> 3.1.0"])
       s.add_dependency(%q<rspec>, ["~> 2.5"])
       s.add_dependency(%q<webmock>, [">= 0"])
       s.add_dependency(%q<yard>, [">= 0"])
@@ -281,15 +284,14 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rack>, [">= 0"])
     s.add_dependency(%q<capybara>, [">= 0"])
     s.add_dependency(%q<cucumber>, ["~> 0.10.0"])
-    s.add_dependency(%q<cucumber-rails>, ["~> 0.3.2"])
+    s.add_dependency(%q<cucumber-rails>, ["~> 0.5.2"])
     s.add_dependency(%q<database_cleaner>, [">= 0"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
     s.add_dependency(%q<fog>, [">= 0"])
     s.add_dependency(%q<mongo>, [">= 0"])
     s.add_dependency(%q<couchrest>, ["~> 1.0"])
     s.add_dependency(%q<rack-cache>, [">= 0"])
-    s.add_dependency(%q<rails>, ["= 3.0.5"])
-    s.add_dependency(%q<rake>, [">= 0"])
+    s.add_dependency(%q<rails>, ["~> 3.1.0"])
     s.add_dependency(%q<rspec>, ["~> 2.5"])
     s.add_dependency(%q<webmock>, [">= 0"])
     s.add_dependency(%q<yard>, [">= 0"])
@@ -298,4 +300,3 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<sqlite3-ruby>, [">= 0"])
   end
 end
-
